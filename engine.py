@@ -4,8 +4,8 @@ import pyglet
 from pyglet.window import key
 from core import GameElement
 
-SCREEN_X = 800
-SCREEN_Y = 700
+SCREEN_X = 1400
+SCREEN_Y = 1000
 
 game_window = pyglet.window.Window(SCREEN_X, SCREEN_Y)
 
@@ -40,7 +40,10 @@ def setup_images():
             "Cat": "Character Cat Girl.png",
             "Horns": "Character Horn Girl.png",
             "Girl": "Character Pink Girl.png",
-            "Princess": "Character Princess Girl.png"
+            "Princess": "Character Princess Girl.png",
+            "DirtBlock" : "Dirt Block.png",
+            "Pink_selector" : "pink_selector.png",
+            "Yellow_selector" :"yellow_selector.png"
             }
 
     for k,v in filenames.items():
@@ -62,21 +65,19 @@ class Board(object):
         board_width_px = width * TILE_WIDTH
         # Board height is half what we think because we stack tiles
         board_height_px = height * TILE_HEIGHT/2
+        # self.offset_x = ((SCREEN_X-board_width_px)/2.0)
+        # self.offset_y = ((SCREEN_Y-board_height_px)/2.0)
+        # self.offset_y = -SCREEN_Y/2 + board_height_px/2 + TILE_HEIGHT/4
         self.offset_x = ((SCREEN_X-board_width_px)/2.0)
         self.offset_y = ((SCREEN_Y-board_height_px)/2.0)
         self.offset_y = -SCREEN_Y/2 + board_height_px/2 + TILE_HEIGHT/4
 
-
         # Make a map with a stoneblock border and filled with grass
         game_map = []
-        inner_width = width-2
+
         for i in range(height):
-            if i == 0 or i == height-1:
-                # On the boundaries
-                game_map.append(["Block"] * width)
-            else:
-                row = ["Block"] + (["GrassBlock"] * inner_width) + ["Block"]
-                game_map.append(row)
+            row = (["GrassBlock"] * width)
+            game_map.append(row)
         
         self.base_board = game_map
         self.content_layer = []
@@ -84,7 +85,10 @@ class Board(object):
         for y in range(height):
             self.content_layer.append(list(row))
 
-        self.message = pyglet.text.Label(text = "", x=10, y=SCREEN_Y-30)
+        self.message = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 30)
+        self.rightmessage = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 30)
+        self.bottommessage = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 60)
+        self.bottomrightmessage = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 60)
         self.bg_sprites = []
 
         for y in range(height):
@@ -99,6 +103,19 @@ class Board(object):
     def draw_msg(self, message):
         self.message.text = message
         pass
+
+    def draw_rightmessage(self, rightmessage):
+        self.rightmessage.text = rightmessage
+        pass
+
+    def draw_bottommsg(self, bottommessage):
+        self.bottommessage.text = bottommessage
+        pass
+
+    def draw_bottomrightmsg(self, bottomrightmessage):
+        self.bottomrightmessage.text = bottomrightmessage
+        pass
+
 
     def erase_msg(self):
         self.message.text = ""
@@ -158,6 +175,16 @@ class Board(object):
         # Draw the label if it exists:
         if self.message:
             self.message.draw()
+
+        if self.rightmessage:
+            self.rightmessage.draw()
+
+        if self.bottommessage:
+            self.bottommessage.draw()
+
+        if self.bottomrightmessage:
+            self.bottomrightmessage.draw()
+
 
         # Draw the content layer
         for y in range(self.height):
