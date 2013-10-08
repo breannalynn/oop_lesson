@@ -2,7 +2,7 @@ import core
 import pyglet
 from pyglet.window import key
 from core import GameElement
-import sys
+import sys 
 import random
 
 #### DO NOT TOUCH ####
@@ -14,39 +14,64 @@ PLAYER2 = None
 ######################
 
 SQ_MOVES = 4
-GAME_WIDTH = 12
+GAME_WIDTH = 10
 GAME_HEIGHT = 10
+GAME_CYCLES = 6
 
 #### Put class definitions here ####
 class Selector(GameElement):
     IMAGE = "Selector"
     SOLID = False
 
+
 class Rock(GameElement):
     IMAGE = "Rock"
     SOLID = True
 
 class Gem(GameElement):
-    IMAGE = "BlueGem"
+    IMAGE = None
     SOLID = False
+    POINT_VAL = 100
+    NAME = ""
 
     def interact(self, player):
-        player.inventory.append(self)
-        GAME_BOARD.draw_msg("You just aquired a gem! You have %d items!" % (len(player.inventory)))  
+        player.points += self.POINT_VAL
+        GAME_BOARD.draw_msg3("You just aquired a %s! You have +%d points!" % (self.NAME, self.POINT_VAL))
+        GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))  
+
+class BlueGem(Gem):
+    IMAGE = "BlueGem"
+    POINT_VAL = 100
 
 class OrangeGem(Gem):
+    IMAGE = "OrangeGem"
+    POINT_VAL = 150
+
+class Star(Gem):
+    IMAGE = "Star"
     def interact(self, player):
-        player.inventory.append(self)
-        GAME_BOARD.draw_msg("ORANGE GEM!!")
+        if player == PLAYER:
+            player.points += 300
+            GAME_BOARD.draw_msg3("You just aquired a star! You have +300 points!")
+            GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))  
+
+class Heart(Gem):
+    IMAGE = "Heart"
+    def interact(self, player):
+        if player == PLAYER2:
+            player.points += 300
+            GAME_BOARD.draw_msg3("You just aquired a heart! You have +300 points!")
+            GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))  
 
 class Character(GameElement):
     SOLID = True
     IMAGE = "Horns"
     moves = SQ_MOVES
     name = "Horns"
+    selector_image = "Yellow_selector"
     def __init__(self):
         GameElement.__init__(self)
-        self.inventory = []
+        self.points = 0
 
     def next_pos(self, direction):
         if direction == "up":
@@ -61,22 +86,50 @@ class Character(GameElement):
             return (random.randint(0, GAME_WIDTH - 1), random.randint(0, GAME_HEIGHT - 1))
         return None
 
+    def make_trail(self, x, y, nextx, nexty):
+        if not GAME_BOARD.get_el(nextx, nexty):
+            self.points += 25
+        selector = Selector()
+        selector.IMAGE = self.selector_image
+        GAME_BOARD.register(selector)
+        GAME_BOARD.set_el(x, y, selector)
+        GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))
+
 ####   End class definitions    ####
 
 def initialize():
+    characterCreation()
+    rockCreation()
+    gemCreation(4, 8)
+
+    GAME_BOARD.draw_msg4("%s  %s" % (PLAYER.name, PLAYER2.name))
+    GAME_BOARD.draw_msg5("Moves:    %d        %d" % (PLAYER.moves, PLAYER2.moves))
+    GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))
+    GAME_BOARD.draw_msg1("Stars vs. Hearts")
+
+def characterCreation():
     global PLAYER
     PLAYER = Character()
     GAME_BOARD.register(PLAYER)
-    GAME_BOARD.set_el(0, 4, PLAYER)
+    rand_x = random.randint(0, GAME_WIDTH - 1)
+    rand_y = random.randint(0, GAME_HEIGHT - 1)
+    GAME_BOARD.set_el(rand_x,  rand_y, PLAYER)
 
     global PLAYER2
     PLAYER2 = Character()
     PLAYER2.IMAGE = "Girl"
     PLAYER2.name = "Girl"
     PLAYER2.moves = 0
+    PLAYER2.selector_image = "Pink"
     GAME_BOARD.register(PLAYER2)
-    GAME_BOARD.set_el(11, 5, PLAYER2)
+    while True:
+        rand_x = random.randint(0, GAME_WIDTH - 1)
+        rand_y = random.randint(0, GAME_HEIGHT - 1)
+        if not GAME_BOARD.get_el(rand_x, rand_y):
+            GAME_BOARD.set_el(rand_x, rand_y, PLAYER2)
+            break
 
+def rockCreation():
     rock_positions = []
     num_rocks = random.randint(6, 10)
     for x in range(num_rocks):
@@ -93,21 +146,28 @@ def initialize():
         GAME_BOARD.set_el(pos[0], pos[1], rock)
         rocks.append(rock)
 
-    # gem = Gem()
-    # GAME_BOARD.register(gem)
-    # GAME_BOARD.set_el(3, 1, gem)
 
-    # gem2 = OrangeGem()
-    # gem2.IMAGE = "OrangeGem"
-    # GAME_BOARD.register(gem2)
-    # GAME_BOARD.set_el(1, 1, gem2)
+def gemCreation(min, max):
+    gem_type = [BlueGem, Star, Heart, OrangeGem, BlueGem, OrangeGem]
 
-    GAME_BOARD.draw_rightmessage("%s: %d  %s: %d" % (PLAYER.name, PLAYER.moves, PLAYER2.name, PLAYER2.moves))
-    GAME_BOARD.draw_bottomrightmsg("Points")
-    GAME_BOARD.draw_msg("Game Name Here")
-   
+    gem_positions = []
+    num_gem = random.randint(min, max)
+    for x in range(num_gem):
+        rand_x = random.randint(0, GAME_WIDTH - 1)
+        rand_y = random.randint(0, GAME_HEIGHT - 1)
+        if not GAME_BOARD.get_el(rand_x, rand_y):
+            gem_positions.append((rand_x, rand_y))
+
+    gems = []
+
+    for pos in gem_positions:
+        gem = gem_type[random.randint(0, 5)]()
+        GAME_BOARD.register(gem)
+        GAME_BOARD.set_el(pos[0], pos[1], gem)
+        gems.append(gem)
 
 def keyboard_handler():
+    GAME_BOARD.draw_msg5("Moves:    %d        %d" % (PLAYER.moves, PLAYER2.moves))
     direction = None
     player = None
 
@@ -157,13 +217,9 @@ def keyboard_handler():
 
             if existing_el is None or not existing_el.SOLID:
                 PLAYER.moves -= 1
-                # GAME_BOARD.del_el(PLAYER.x, PLAYER.y)
-                selector = Selector()
-                selector.IMAGE = "Yellow_selector"
-                GAME_BOARD.register(selector)
-                GAME_BOARD.set_el(PLAYER.x, PLAYER.y, selector)
+                PLAYER.make_trail(PLAYER.x, PLAYER.y, next_x, next_y)
                 GAME_BOARD.set_el(next_x, next_y, PLAYER)
-                GAME_BOARD.draw_bottommsg("%s's turn. You have %d moves remaining." % (PLAYER.name, PLAYER.moves))  
+                GAME_BOARD.draw_msg2("%s's turn. You have %d moves remaining." % (PLAYER.name, PLAYER.moves))  
                 if PLAYER.moves == 0:
                     PLAYER2.moves = SQ_MOVES
 
@@ -180,12 +236,24 @@ def keyboard_handler():
 
             if existing_el is None or not existing_el.SOLID:
                 GAME_BOARD.del_el(PLAYER2.x, PLAYER2.y)
-                selector = Selector()
-                selector.IMAGE = "Pink_selector"
-                GAME_BOARD.register(selector)
-                GAME_BOARD.set_el(PLAYER2.x, PLAYER2.y, selector)
+                PLAYER2.make_trail(PLAYER2.x, PLAYER2.y, next_x, next_y)
                 GAME_BOARD.set_el(next_x, next_y, PLAYER2)
                 PLAYER2.moves -= 1
-                GAME_BOARD.draw_bottommsg("%s's turn. You have %d moves remaining." % (PLAYER2.name, PLAYER2.moves))  
+                GAME_BOARD.draw_msg2("%s's turn. You have %d moves remaining." % (PLAYER2.name, PLAYER2.moves))  
                 if PLAYER2.moves == 0:
-                    PLAYER.moves = SQ_MOVES
+                    game_count()
+
+def game_count():
+    global GAME_CYCLES
+    GAME_CYCLES -= 1
+    if GAME_CYCLES % 2 == 0:
+        gemCreation(2, 4)
+    if GAME_CYCLES == 0:
+        if PLAYER.points > PLAYER2.points:
+            GAME_BOARD.draw_msg3("Congratulations %s, you win!" % (PLAYER.name))
+        else: 
+            GAME_BOARD.draw_msg3("Congratulations %s, you win!" % (PLAYER2.name))
+        PLAYER.moves == 0
+    else:
+        PLAYER.moves = SQ_MOVES
+

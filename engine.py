@@ -43,7 +43,10 @@ def setup_images():
             "Princess": "Character Princess Girl.png",
             "DirtBlock" : "Dirt Block.png",
             "Pink_selector" : "pink_selector.png",
-            "Yellow_selector" :"yellow_selector.png"
+            "Yellow_selector" :"yellow_selector.png",
+            "Pink" : "pink.png",
+            "Star" : "Star.png",
+            "Heart" : "Heart.png"
             }
 
     for k,v in filenames.items():
@@ -69,8 +72,8 @@ class Board(object):
         # self.offset_y = ((SCREEN_Y-board_height_px)/2.0)
         # self.offset_y = -SCREEN_Y/2 + board_height_px/2 + TILE_HEIGHT/4
         self.offset_x = ((SCREEN_X-board_width_px)/2.0)
-        self.offset_y = ((SCREEN_Y-board_height_px)/2.0)
-        self.offset_y = -SCREEN_Y/2 + board_height_px/2 + TILE_HEIGHT/4
+        self.offset_y = ((SCREEN_Y-board_height_px)/2.0) 
+        self.offset_y = -SCREEN_Y/2 + board_height_px/2 + TILE_HEIGHT/4 - 40
 
         # Make a map with a stoneblock border and filled with grass
         game_map = []
@@ -85,10 +88,20 @@ class Board(object):
         for y in range(height):
             self.content_layer.append(list(row))
 
-        self.message = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 30)
-        self.rightmessage = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 30)
-        self.bottommessage = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 60)
-        self.bottomrightmessage = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 60)
+        # self.message = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 30)
+        # self.rightmessage = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 30)
+        # self.bottommessage = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 60)
+        # self.bottomrightmessage = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 60)
+
+        self.msg1 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 30)
+        self.msg2 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 60)
+        self.msg3 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 90)
+        self.msg4 = pyglet.text.Label(text = "", x= 1170, y=SCREEN_Y - 30)  
+        self.msg5 = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 60)
+        self.msg6 = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 90)
+
+
+
         self.bg_sprites = []
 
         for y in range(height):
@@ -100,22 +113,29 @@ class Board(object):
                 self.draw_bg(sprite, x, y)
                 self.bg_sprites.append(sprite)
 
-    def draw_msg(self, message):
-        self.message.text = message
+    def draw_msg1(self, message):
+        self.msg1.text = message
         pass
 
-    def draw_rightmessage(self, rightmessage):
-        self.rightmessage.text = rightmessage
+    def draw_msg2(self, message):
+        self.msg2.text = message
         pass
 
-    def draw_bottommsg(self, bottommessage):
-        self.bottommessage.text = bottommessage
+    def draw_msg3(self, message):
+        self.msg3.text = message
         pass
 
-    def draw_bottomrightmsg(self, bottomrightmessage):
-        self.bottomrightmessage.text = bottomrightmessage
+    def draw_msg4(self, message):
+        self.msg4.text = message
         pass
 
+    def draw_msg5(self, message):
+        self.msg5.text = message
+        pass
+
+    def draw_msg6(self, message):
+        self.msg6.text = message
+        pass
 
     def erase_msg(self):
         self.message.text = ""
@@ -173,17 +193,28 @@ class Board(object):
             sprite.draw()
 
         # Draw the label if it exists:
-        if self.message:
-            self.message.draw()
+        if self.msg1:
+            self.msg1.draw()
 
-        if self.rightmessage:
-            self.rightmessage.draw()
+        if self.msg2:
+            self.msg2.draw()
 
-        if self.bottommessage:
-            self.bottommessage.draw()
+        if self.msg3:
+            self.msg3.draw()
 
-        if self.bottomrightmessage:
-            self.bottomrightmessage.draw()
+        if self.msg4:
+            self.msg4.draw()
+
+        if self.msg5:
+            self.msg5.draw()
+
+        if self.msg6:
+            self.msg6.draw()
+
+
+
+
+
 
 
         # Draw the content layer
