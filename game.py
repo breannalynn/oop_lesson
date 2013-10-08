@@ -22,6 +22,7 @@ GAME_CYCLES = 6
 class Selector(GameElement):
     IMAGE = "Selector"
     SOLID = False
+    TILE = True
 
 
 class Rock(GameElement):
@@ -31,28 +32,34 @@ class Rock(GameElement):
 class Gem(GameElement):
     IMAGE = None
     SOLID = False
-    POINT_VAL = 100
-    NAME = ""
+
+    def __init__(self):
+        self.NAME = ""
+        self.POINT_VAL = 100
 
     def interact(self, player):
         player.points += self.POINT_VAL
-        GAME_BOARD.draw_msg3("You just aquired a %s! You have +%d points!" % (self.NAME, self.POINT_VAL))
+        GAME_BOARD.draw_msg3("%s just aquired a %s! %s has +%d points!" % (player.name, self.NAME, player.name, self.POINT_VAL))
         GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))  
 
 class BlueGem(Gem):
-    IMAGE = "BlueGem"
-    POINT_VAL = 100
+    def __init__(self):
+        self.IMAGE = "BlueGem"
+        self.POINT_VAL = 100
+        self.NAME = "blue gem"
 
 class OrangeGem(Gem):
-    IMAGE = "OrangeGem"
-    POINT_VAL = 150
+    def __init__(self):
+        self.IMAGE = "OrangeGem"
+        self.POINT_VAL = 150
+        self.NAME = "orange gem"
 
 class Star(Gem):
     IMAGE = "Star"
     def interact(self, player):
         if player == PLAYER:
             player.points += 300
-            GAME_BOARD.draw_msg3("You just aquired a star! You have +300 points!")
+            GAME_BOARD.draw_msg3("%s just aquired a star! %s +300 points!" % (player.name, player.name))
             GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))  
 
 class Heart(Gem):
@@ -60,18 +67,20 @@ class Heart(Gem):
     def interact(self, player):
         if player == PLAYER2:
             player.points += 300
-            GAME_BOARD.draw_msg3("You just aquired a heart! You have +300 points!")
+            GAME_BOARD.draw_msg3("%s just aquired a heart! %s +300 points!" % (player.name, player.name))
             GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))  
 
 class Character(GameElement):
     SOLID = True
-    IMAGE = "Horns"
     moves = SQ_MOVES
-    name = "Horns"
-    selector_image = "Yellow_selector"
+
     def __init__(self):
         GameElement.__init__(self)
         self.points = 0
+        self.inventory = []
+        self.IMAGE = "Horns"
+        self.name = "Horns"
+        self.selector_image = "Yellow_selector"
 
     def next_pos(self, direction):
         if direction == "up":
@@ -87,12 +96,32 @@ class Character(GameElement):
         return None
 
     def make_trail(self, x, y, nextx, nexty):
-        if not GAME_BOARD.get_el(nextx, nexty):
+        if GAME_BOARD.get_el(nextx, nexty):
+            element_img = GAME_BOARD.get_el(nextx, nexty).IMAGE
+        else:
+            element_img = None
+
+        if element_img == "Pink" or element_img == "Yellow_selector":
+            print self.name, self.inventory
+            selector = Selector()
+            if len(self.inventory) == 0:
+                selector.IMAGE = self.selector_image
+            else:
+                selector.IMAGE = self.inventory.pop()
+
+            GAME_BOARD.register(selector)
+            GAME_BOARD.set_el(x, y, selector)
+            self.inventory.append(element_img)
+        else:
             self.points += 25
-        selector = Selector()
-        selector.IMAGE = self.selector_image
-        GAME_BOARD.register(selector)
-        GAME_BOARD.set_el(x, y, selector)
+            selector = Selector()
+            if len(self.inventory) == 0:
+                selector.IMAGE = self.selector_image
+            else:
+                selector.IMAGE = self.inventory.pop()
+            GAME_BOARD.register(selector)
+            GAME_BOARD.set_el(x, y, selector)
+
         GAME_BOARD.draw_msg6("Points:    %d        %d" % (PLAYER.points, PLAYER2.points))
 
 ####   End class definitions    ####
@@ -131,7 +160,7 @@ def characterCreation():
 
 def rockCreation():
     rock_positions = []
-    num_rocks = random.randint(6, 10)
+    num_rocks = random.randint(14, 20)
     for x in range(num_rocks):
         rand_x = random.randint(0, GAME_WIDTH - 1)
         rand_y = random.randint(0, GAME_HEIGHT - 1)
@@ -201,7 +230,11 @@ def keyboard_handler():
         player = 2
     if KEYBOARD[key.T]:
         direction = "teleport"     
-        player = 2       
+        player = 2
+    if KEYBOARD[key.ENTER]:
+        changeCharacter(PLAYER, PLAYER.x, PLAYER.y)
+    if KEYBOARD[key.SPACE]:
+        changeCharacter(PLAYER2, PLAYER2.x, PLAYER2.y)
 
 
     if direction and player == 1 and PLAYER.moves > 0:
@@ -216,6 +249,8 @@ def keyboard_handler():
                 existing_el.interact(PLAYER)
 
             if existing_el is None or not existing_el.SOLID:
+
+                GAME_BOARD.del_el(PLAYER.x, PLAYER.y)
                 PLAYER.moves -= 1
                 PLAYER.make_trail(PLAYER.x, PLAYER.y, next_x, next_y)
                 GAME_BOARD.set_el(next_x, next_y, PLAYER)
@@ -247,13 +282,23 @@ def game_count():
     global GAME_CYCLES
     GAME_CYCLES -= 1
     if GAME_CYCLES % 2 == 0:
-        gemCreation(2, 4)
+        gemCreation(4, 8)
     if GAME_CYCLES == 0:
         if PLAYER.points > PLAYER2.points:
             GAME_BOARD.draw_msg3("Congratulations %s, you win!" % (PLAYER.name))
-        else: 
+        elif PLAYER.points < PLAYER2.points: 
             GAME_BOARD.draw_msg3("Congratulations %s, you win!" % (PLAYER2.name))
+        else:
+            GAME_BOARD.draw_msg3("Tied! Good job everyone.")
         PLAYER.moves == 0
     else:
         PLAYER.moves = SQ_MOVES
 
+def changeCharacter(player, x, y):
+    characters = ["Princess", "Boy", "Cat", "Girl", "Horns"]
+    index = random.randint(0,4)
+    player.IMAGE = characters[index]
+    player.name= characters[index]
+    GAME_BOARD.register(player)
+    GAME_BOARD.set_el(x, y, player)
+    GAME_BOARD.draw_msg4("%s  %s" % (PLAYER.name, PLAYER2.name))

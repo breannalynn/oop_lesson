@@ -4,7 +4,7 @@ import pyglet
 from pyglet.window import key
 from core import GameElement
 
-SCREEN_X = 1400
+SCREEN_X = 1200
 SCREEN_Y = 1000
 
 game_window = pyglet.window.Window(SCREEN_X, SCREEN_Y)
@@ -96,9 +96,9 @@ class Board(object):
         self.msg1 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 30)
         self.msg2 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 60)
         self.msg3 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 90)
-        self.msg4 = pyglet.text.Label(text = "", x= 1170, y=SCREEN_Y - 30)  
-        self.msg5 = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 60)
-        self.msg6 = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 90)
+        self.msg4 = pyglet.text.Label(text = "", x= 1010, y=SCREEN_Y - 30)  
+        self.msg5 = pyglet.text.Label(text = "", x= 950, y=SCREEN_Y - 60)
+        self.msg6 = pyglet.text.Label(text = "", x= 950, y=SCREEN_Y - 90)
 
 
 
