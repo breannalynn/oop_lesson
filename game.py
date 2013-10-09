@@ -102,7 +102,6 @@ class Character(GameElement):
             element_img = None
 
         if element_img == "Pink" or element_img == "Yellow_selector":
-            print self.name, self.inventory
             selector = Selector()
             if len(self.inventory) == 0:
                 selector.IMAGE = self.selector_image
@@ -129,7 +128,7 @@ class Character(GameElement):
 def initialize():
     characterCreation()
     rockCreation()
-    gemCreation(4, 8)
+    gemCreation(6, 10)
 
     GAME_BOARD.draw_msg4("%s  %s" % (PLAYER.name, PLAYER2.name))
     GAME_BOARD.draw_msg5("Moves:    %d        %d" % (PLAYER.moves, PLAYER2.moves))
@@ -285,11 +284,13 @@ def game_count():
         gemCreation(4, 8)
     if GAME_CYCLES == 0:
         if PLAYER.points > PLAYER2.points:
-            GAME_BOARD.draw_msg3("Congratulations %s, you win!" % (PLAYER.name))
+            GAME_BOARD.draw_msg7("Congratulations %s," % PLAYER.name)
+            GAME_BOARD.draw_msg8("You win!")
         elif PLAYER.points < PLAYER2.points: 
-            GAME_BOARD.draw_msg3("Congratulations %s, you win!" % (PLAYER2.name))
+            GAME_BOARD.draw_msg7("Congratulations %s," % PLAYER2.name)
+            GAME_BOARD.draw_msg8("You win!")
         else:
-            GAME_BOARD.draw_msg3("Tied! Good job everyone.")
+            GAME_BOARD.draw_msg7("Tied! Good job everyone.")
         PLAYER.moves == 0
     else:
         PLAYER.moves = SQ_MOVES

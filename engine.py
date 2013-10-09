@@ -44,7 +44,7 @@ def setup_images():
             "DirtBlock" : "Dirt Block.png",
             "Pink_selector" : "pink_selector.png",
             "Yellow_selector" :"yellow_selector.png",
-            "Pink" : "pink.png",
+            "Pink" : "new_heart.png",
             "Star" : "Star.png",
             "Heart" : "Heart.png"
             }
@@ -88,20 +88,6 @@ class Board(object):
         for y in range(height):
             self.content_layer.append(list(row))
 
-        # self.message = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 30)
-        # self.rightmessage = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 30)
-        # self.bottommessage = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 60)
-        # self.bottomrightmessage = pyglet.text.Label(text = "", x= 1100, y=SCREEN_Y - 60)
-
-        self.msg1 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 30)
-        self.msg2 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 60)
-        self.msg3 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 90)
-        self.msg4 = pyglet.text.Label(text = "", x= 1010, y=SCREEN_Y - 30)  
-        self.msg5 = pyglet.text.Label(text = "", x= 950, y=SCREEN_Y - 60)
-        self.msg6 = pyglet.text.Label(text = "", x= 950, y=SCREEN_Y - 90)
-
-
-
         self.bg_sprites = []
 
         for y in range(height):
@@ -113,6 +99,16 @@ class Board(object):
                 self.draw_bg(sprite, x, y)
                 self.bg_sprites.append(sprite)
 
+        self.msg1 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 30)
+        self.msg2 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 60)
+        self.msg3 = pyglet.text.Label(text = "", x=150, y=SCREEN_Y - 90)
+        self.msg4 = pyglet.text.Label(text = "", x= 1010, y=SCREEN_Y - 30)  
+        self.msg5 = pyglet.text.Label(text = "", x= 950, y=SCREEN_Y - 60)
+        self.msg6 = pyglet.text.Label(text = "", x= 950, y=SCREEN_Y - 90)
+        self.msg7 = pyglet.text.Label(text = "", font_size = 60, x= 110, y= 500)
+        self.msg8 = pyglet.text.Label(text = "", font_size = 60, x= 430, y= 300)
+        
+        
     def draw_msg1(self, message):
         self.msg1.text = message
         pass
@@ -135,6 +131,14 @@ class Board(object):
 
     def draw_msg6(self, message):
         self.msg6.text = message
+        pass
+
+    def draw_msg7(self, message):
+        self.msg7.text = message
+        pass
+
+    def draw_msg8(self, message):
+        self.msg8.text = message
         pass
 
     def erase_msg(self):
@@ -192,6 +196,13 @@ class Board(object):
         for sprite in self.bg_sprites:
             sprite.draw()
 
+        # Draw the content layer
+        for y in range(self.height):
+            for x in range(self.width):
+                el = self.content_layer[y][x]
+                if el:
+                    self.draw_active(el.sprite, x, y)
+
         # Draw the label if it exists:
         if self.msg1:
             self.msg1.draw()
@@ -211,18 +222,13 @@ class Board(object):
         if self.msg6:
             self.msg6.draw()
 
+        if self.msg7:
+            self.msg7.draw()
+
+        if self.msg8:
+            self.msg8.draw()
 
 
-
-
-
-
-        # Draw the content layer
-        for y in range(self.height):
-            for x in range(self.width):
-                el = self.content_layer[y][x]
-                if el:
-                    self.draw_active(el.sprite, x, y)
 
 
 class Obstacle(GameElement):
